@@ -272,8 +272,20 @@ To rigorously evaluate the contribution of each architectural component, we cond
 \subsubsection{Removal of the Penalty Function ($\lambda = 0$)}
 We tested an ablation where the reward function only rewarded goal alignment ($\alpha > 0$) but ignored destruction of previous elements ($\lambda = 0$). In this scenario, Workers successfully completed their immediate sub-goals but often erased the canvas background entirely to do so. The success rate fell dramatically, proving that a strictly constrained reward proxy is required to prevent "lazy" policy optimization.
 
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.45\textwidth]{graphs/performance_comparison.png}}
+\caption{Overall Performance Metric Breakdown showing ablation efficiency.}
+\label{fig:perf_comp}
+\end{figure}
+
 \subsubsection{Static Weight Initialization vs PPO Tuning}
 We evaluated the framework using fixed deterministic heuristic weights instead of dynamic PPO optimization. Under a heuristic approach, workers failed to adapt to novel edge cases presented in late-stage generative epochs. The integration of continuous PPO updating yielded a significant performance increase in overall structural robustness compared to the static baseline.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.45\textwidth]{graphs/convergence_graph.png}}
+\caption{PPO Convergence Trajectory over 10,000 Simulation Epochs. CMAC stabilizes around epoch 8,450.}
+\label{fig:convergence}
+\end{figure}
 
 \section{Conclusion and Future Work}
 The Collaborative Multi-Agent Canvas provides a verifiable, scalable, and computationally efficient framework for long-horizon generation. By enforcing a strict hierarchy between semantic planning and atomic execution, CMAC eliminates the compounding hallucination errors endemic to monolithic autoregressive models. Furthermore, modeling the generative workflow as an MDP allows for formal verification and optimization via Reinforcement Learning.
