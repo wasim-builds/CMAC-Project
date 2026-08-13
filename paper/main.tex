@@ -1,13 +1,16 @@
-\documentclass[runningheads]{llncs}
-\usepackage[T1]{fontenc}
+\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
 \usepackage{graphicx}
-\usepackage{cite}
+\usepackage{multirow}
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
-\usepackage{algorithm}
-\usepackage{textcomp}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
 \usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
 \usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
 \usepackage{hyperref}
 
 \hypersetup{
@@ -21,24 +24,19 @@
 
 \begin{document}
 
-\title{Collaborative Multi-Agent Canvas (CMAC): Hierarchical Reinforcement Learning for Long-Horizon Generative Workflows}
-\titlerunning{Collaborative Multi-Agent Canvas (CMAC)}
+\title[Collaborative Multi-Agent Canvas (CMAC)]{Collaborative Multi-Agent Canvas (CMAC): Hierarchical Reinforcement Learning for Long-Horizon Generative Workflows}
 
-\author{Mohammed Wasim Khan\inst{1} \and
-Dr. Venkata Bhikshapathi Chenam\inst{1}}
+\author*[1]{\fnm{Mohammed Wasim} \sur{Khan}}\email{wasim.21mis7125@vitapstudent.ac.in}
 
-\authorrunning{M. W. Khan and V. B. Chenam}
+\author[1]{\fnm{Venkata Bhikshapathi} \sur{Chenam}}\email{venkatab.chenam@vitap.ac.in}
 
-\institute{School of Computer Science and Engineering, VIT-AP University, Amaravati, 522237, Andhra Pradesh, India\\
-\email{wasim.21mis7125@vitapstudent.ac.in, venkatab.chenam@vitap.ac.in}}
+\affil*[1]{\orgdiv{School of Computer Science and Engineering}, \orgname{VIT-AP University}, \orgaddress{\city{Amaravati}, \postcode{522237}, \state{Andhra Pradesh}, \country{India}}}
+
+\abstract{As generative AI models scale in size, they demonstrate high proficiency in handling short, single-prompt requests. However, when constructing complex, multi-modal projects—such as designing a full user interface or a cohesive video—monolithic agents frequently fail at these long-horizon tasks due to context decay. As the sequence length increases, models often deviate from original instructions and propagate hallucinations. To address this limitation, we introduce the Collaborative Multi-Agent Canvas (CMAC). CMAC is a hierarchical reinforcement learning (HRL) system that decouples planning from execution. A Director Agent decomposes the user's prompt into smaller semantic steps, which are then delegated to specialized Worker Agents that perform localized edits on a Shared Memory Canvas. To prevent agents from overwriting each other's contributions, we introduce a Reinforcement Learning reward function that evaluates each edit. We evaluated three architectures across 5 random seeds, with the CMAC policy trained over 10,000 PPO epochs, to benchmark against standard monolithic and flat multi-agent pipelines. The evaluation demonstrates that CMAC improved the structural cohesion of the final outputs by 43\% and reduced the total token processing overhead by 65\%. By decoupling the planning phase from execution, CMAC provides a verifiable mechanism to track state and prevent compounding errors. This paper details the mathematical formulation, system architecture, and empirical evidence supporting multi-agent HRL for generative workflows. Code and supplementary data are available at: \url{https://github.com/wasim143mr/CMAC-Project}.}
+
+\keywords{Multi-Agent Systems, Reinforcement Learning, Generative AI, World Models, Hierarchical Planning, Markov Decision Processes, Proximal Policy Optimization}
 
 \maketitle
-
-\begin{abstract}
-As generative AI models scale in size, they demonstrate high proficiency in handling short, single-prompt requests. However, when constructing complex, multi-modal projects—such as designing a full user interface or a cohesive video—monolithic agents frequently fail at these long-horizon tasks due to context decay. As the sequence length increases, models often deviate from original instructions and propagate hallucinations. To address this limitation, we introduce the Collaborative Multi-Agent Canvas (CMAC). CMAC is a hierarchical reinforcement learning (HRL) system that decouples planning from execution. A Director Agent decomposes the user's prompt into smaller semantic steps, which are then delegated to specialized Worker Agents that perform localized edits on a Shared Memory Canvas. To prevent agents from overwriting each other's contributions, we introduce a Reinforcement Learning reward function that evaluates each edit. We evaluated three architectures across 5 random seeds, with the CMAC policy trained over 10,000 PPO epochs, to benchmark against standard monolithic and flat multi-agent pipelines. The evaluation demonstrates that CMAC improved the structural cohesion of the final outputs by 43\% and reduced the total token processing overhead by 65\%. By decoupling the planning phase from execution, CMAC provides a verifiable mechanism to track state and prevent compounding errors. This paper details the mathematical formulation, system architecture, and empirical evidence supporting multi-agent HRL for generative workflows. Code and supplementary data are available at: \url{https://github.com/wasim143mr/CMAC-Project}.
-
-\keywords{Multi-Agent Systems \and Reinforcement Learning \and Generative AI \and World Models \and Hierarchical Planning \and Markov Decision Processes \and Proximal Policy Optimization}
-\end{abstract}
 
 \section{Introduction}
 Large Language Models (LLMs) and Vision-Language Models (VLMs) have fundamentally altered the landscape of automated content generation. By learning vast distributions over text and image data, these models synthesize highly convincing outputs from natural language instructions. Early systems focused on isolated, single-step generation: a user provides a prompt, and the system returns a static image or a block of code.
