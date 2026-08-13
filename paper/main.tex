@@ -32,7 +32,7 @@ wasim143mr@gmail.com}
 \maketitle
 
 \begin{abstract}
-As generative AI models get larger, they're becoming incredibly good at handling short, single-prompt requests. But when it comes to building complex, multi-modal projects—like designing a full user interface or a cohesive video—things start to break down. We noticed that single, monolithic agents usually fail at these long-horizon tasks because of a phenomenon known as context decay. Essentially, as the sequence gets longer, the AI forgets the original instructions and starts hallucinating. To fix this, we built the Collaborative Multi-Agent Canvas (CMAC). CMAC is a hierarchical reinforcement learning system that completely separates planning from execution. Instead of one massive model doing everything, we use a Director Agent to break the user's prompt into smaller semantic steps. These steps are then handed off to specialized Worker Agents who make specific, localized edits on a Shared Memory Canvas. To make sure the agents don't overwrite each other's work, we introduced a Reinforcement Learning reward function that acts as a critic after every single edit. We ran 10,000 simulated tasks to compare CMAC against a standard monolithic pipeline. The results were pretty clear: CMAC improved the structural cohesion of the final outputs by 43\% and actually cut down the total token cost by 65\%. By decoupling the planning phase from the actual execution, we created a verifiable way to track state and stop errors from spiraling out of control. This paper lays out the math, the architecture, and the empirical proof that multi-agent HRL is a viable path forward for generative workflows. Code and supplementary data are available at: \href{https://github.com/wasim143mr/CMAC-Project}{https://github.com/wasim143mr/CMAC-Project}.
+As generative AI models scale in size, they demonstrate high proficiency in handling short, single-prompt requests. However, when constructing complex, multi-modal projects—such as designing a full user interface or a cohesive video—monolithic agents frequently fail at these long-horizon tasks due to context decay. As the sequence length increases, models often deviate from original instructions and propagate hallucinations. To address this limitation, we introduce the Collaborative Multi-Agent Canvas (CMAC). CMAC is a hierarchical reinforcement learning (HRL) system that decouples planning from execution. A Director Agent decomposes the user's prompt into smaller semantic steps, which are then delegated to specialized Worker Agents that perform localized edits on a Shared Memory Canvas. To prevent agents from overwriting each other's contributions, we introduce a Reinforcement Learning reward function that evaluates each edit. We evaluated three architectures across 5 random seeds, with the CMAC policy trained over 10,000 PPO epochs, to benchmark against standard monolithic and flat multi-agent pipelines. The evaluation demonstrates that CMAC improved the structural cohesion of the final outputs by 43\% and reduced the total token processing overhead by 65\%. By decoupling the planning phase from execution, CMAC provides a verifiable mechanism to track state and prevent compounding errors. This paper details the mathematical formulation, system architecture, and empirical evidence supporting multi-agent HRL for generative workflows. Code and supplementary data are available at: \href{https://github.com/wasim143mr/CMAC-Project}{https://github.com/wasim143mr/CMAC-Project}.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -63,13 +63,31 @@ The remainder of this paper is organized as follows. Section II reviews existing
 The degradation of LLM performance over long context windows is well documented in contemporary NLP research. Researchers have demonstrated that while modern models theoretically support million-token windows, their empirical ability to retrieve and reason over information in the middle of the context drastically drops (often termed the "Lost in the Middle" phenomenon). This prevents monolithic agents from maintaining temporal consistency in long-horizon generation. Attempts to mitigate this using sparse attention mechanisms, RingAttention, or explicit memory summarization modules have yielded marginal improvements but fail to solve the underlying compounding error problem that arises from autoregressive decoding limits.
 
 \subsection{Agentic Workflows and World Proxies}
-To prevent error compounding, recent literature proposes integrating explicit world models into agent loops. Frameworks like LongHorizon-Harness and Quo Vadis decouple the agent's internal reasoning from the environment state. By maintaining a separate "World Proxy", the agent can simulate the outcome of an action before committing to it, a process deeply inspired by traditional Model-Based Reinforcement Learning. However, these systems treat the world proxy purely as an evaluation tool. The generation itself is still handled by a single, computationally massive generalist model, which remains highly inefficient.
+To prevent error compounding, recent literature proposes evaluating agents using robust harnesses and environment proxies. For instance, frameworks like LongHorizon-Harness provide environments for agent evaluation [CITATION NEEDED — VERIFY]. Furthermore, other research suggests integrating explicit world models into agent loops to decouple internal reasoning from the environment state [CITATION NEEDED — VERIFY]. By maintaining a separate "World Proxy", an agent can simulate the outcome of an action before committing to it, a process deeply inspired by traditional Model-Based Reinforcement Learning. However, in many such systems, the generation itself is still handled by a single, computationally massive generalist model, which remains highly inefficient.
 
 \subsection{Multimodal Canvas Systems}
-Parallel to world models, the concept of a "Canvas-Native" agent has gained immense traction. Systems like JarvisHub provide an open harness for multimodal creative production. Rather than outputting a final file, the agent interacts with a digital canvas, placing text, images, and UI elements spatially. Similarly, VideoCoCo utilizes executable code scripts to manage the temporal layout of video frames before rendering them. CMAC builds directly upon these canvas-native concepts. We extend the static canvas by applying a strict Hierarchical Reinforcement Learning wrapper, treating the canvas as the stochastic environment state space for a multi-agent ecosystem.
+Parallel to world models, the concept of a "Canvas-Native" agent has gained immense traction. Systems like JarvisHub provide an open harness for multimodal creative production [CITATION NEEDED — VERIFY]. Rather than outputting a final file, the agent interacts with a digital canvas, placing text, images, and UI elements spatially. Similarly, VideoCoCo utilizes executable code scripts to manage the temporal layout of video frames before rendering them [CITATION NEEDED — VERIFY]. CMAC builds directly upon these canvas-native concepts. We extend the static canvas by applying a strict Hierarchical Reinforcement Learning wrapper, treating the canvas as the stochastic environment state space for a multi-agent ecosystem.
 
 \subsection{Hierarchical Reinforcement Learning in Generative AI}
 Hierarchical Reinforcement Learning (HRL) has been widely adopted in robotics to break down complex tasks (e.g., navigating a maze) into sub-tasks (e.g., taking a step). However, its application in generative LLM workflows is nascent. Recent attempts have utilized HRL for text summarization, but CMAC is the first to apply a two-tier HRL framework directly to a spatial, multi-modal generative canvas.
+
+\begin{table*}[htbp]
+\caption{Taxonomy of Generative Agent Architectures}
+\begin{center}
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Architecture} & \textbf{Context Complexity} & \textbf{State Verification} & \textbf{Failure Recovery} & \textbf{Hierarchical Control} & \textbf{Off-Policy Feedback} \\
+\midrule
+Monolithic LLMs & $O(T^2)$ & Implicit & Autoregressive Retry & No & No \\
+Agentic Frameworks & $O(T^2)$ & Prompt-based Evaluators & Re-prompting & Partial & No \\
+World Proxies & $O(T^2)$ & Proximal Simulation & State Rollback & No & Yes \\
+Canvas Native & $O(L^2)$ & Spatial Object Modeling & State Rollback & No & No \\
+\textbf{CMAC (Ours)} & \textbf{$O(L^2)$} & \textbf{Deterministic Serialization} & \textbf{Reward-based Rejection} & \textbf{Yes (Director-Worker)} & \textbf{Yes (PPO Critic)} \\
+\bottomrule
+\end{tabular}
+\label{tab:taxonomy}
+\end{center}
+\end{table*}
 
 \subsection{Model-Based Reinforcement Learning (MBRL) and Planning}
 Within classical Reinforcement Learning, MBRL allows agents to learn a forward dynamics model of the environment, enabling them to simulate trajectories and plan before taking physical actions. Prominent algorithms like MuZero and Dreamer demonstrate that learning a latent dynamics model drastically improves sample efficiency compared to model-free approaches like PPO or SAC. However, applying MBRL to text or image generation is notoriously difficult due to the massive, unstructured nature of language and pixel spaces. 
@@ -110,14 +128,16 @@ In the context of CMAC, $V^*(s)$ represents the maximum possible cohesion score 
 
 \section{Methodology: The CMAC Architecture}
 
-The Collaborative Multi-Agent Canvas operates on a strict separation of concerns. The architecture leverages the MDP foundation but expands it via the Options Framework to handle multi-agent hierarchy.
+The Collaborative Multi-Agent Canvas operates on a strict separation of concerns. The architecture leverages the MDP foundation but expands it via the Semi-Markov Decision Process (SMDP) and Options Framework to handle multi-agent hierarchy. 
+
+Under the SMDP formulation, the Director Agent operates at a temporally extended abstraction layer. We define an Option $\omega \in \Omega$ as the tuple $\langle \mathcal{I}_\omega, \pi_\omega, \beta_\omega \rangle$. Here, $\mathcal{I}_\omega \subseteq \mathcal{S}$ is the initiation set of states where the option can be invoked, $\pi_\omega$ is the specialized Worker's intra-option policy, and $\beta_\omega: \mathcal{S} \rightarrow [0, 1]$ dictates the probability of termination. The Director assigns a macro-goal $g_i$, effectively selecting the option $\omega$. The Worker executes $\pi_\omega$ iteratively until the deterministic termination condition $\beta_\omega(C_t) = 1$ is satisfied.
 
 \subsection{The Shared Canvas State Space Serialization}
 Let the Shared Canvas represent the environment state space $\mathcal{S}$. At any discrete time step $t$, the canvas state $C_t \in \mathcal{S}$ holds the exact, current representation of the generated artifact. Depending on the modality, $C_t$ could be a JSON tree representing a UI layout, an Abstract Syntax Tree representing a codebase, or a latent tensor representing a video frame.
 
-To interface with transformer-based Worker Agents, the continuous spatial state must be serialized into a discrete token sequence $x_t \in \mathcal{X}$. We define a bijective mapping function $\mathcal{M}: \mathcal{S} \rightarrow \mathcal{X}$ that linearizes the canvas state while preserving topological boundaries. For example, a 2D bounding box is mapped to a structural string $[x_1, y_1, x_2, y_2, label]$.
+To interface with transformer-based Worker Agents, the continuous spatial state must be serialized into a discrete token sequence $x_t \in \mathcal{X}$. We define a bijective mapping function $\mathcal{M}: \mathcal{S} \rightarrow \mathcal{X}$ that linearizes the canvas state while preserving topological boundaries. For instance, in UI generation, the canvas is an HTML DOM Tree; $\mathcal{M}$ translates this hierarchy into a linear string of structural brackets and attributes. In software engineering, the state is an Abstract Syntax Tree (AST), and $\mathcal{M}$ converts symbolic nodes and scope declarations into a parseable Python script.
 
-Crucially, the agents do not pass historical context to each other. When an agent is invoked, it only receives the current ground-truth canvas state $C_t$ and the immediate goal. This guarantees that context window size scales only with the complexity of the current canvas, not the history of operations.
+Crucially, the agents do not pass historical context to each other. When an agent is invoked, it only receives the current ground-truth canvas state $C_t$ and the immediate goal. This guarantees that context window size scales only with the topological complexity $L$ of the current artifact, not the historical sequence of operations $T$.
 
 \subsection{The Director Agent (High-Level Policy)}
 The Director Agent $\mathcal{D}$ acts as the macro-planner. Given a human user prompt $p$, the Director generates a sequence of sub-goals $G = \{g_1, g_2, \dots, g_n\}$. 
@@ -160,13 +180,17 @@ The canvas environment then applies a deterministic transition function:
 \end{algorithm}
 
 \subsection{Reinforcement Learning and Cohesion Reward}
-To ensure that Worker Agents do not make destructive edits that ruin previous work, we implement a cohesive reward function $\mathcal{R}$. After every transition, an automated evaluator computes the semantic delta between $C_t$ and $C_{t+1}$. 
+To ensure that Worker Agents do not make destructive edits that ruin previous work, we implement a cohesive reward function $\mathcal{R}$. After every transition, an automated evaluator computes the semantic delta between $C_t$ and $C_{t+1}$. If an edit falls below a set heuristic threshold, it is strictly rejected and the canvas is reverted via a hard sampling loop. This rejected step is then pushed to the PPO replay buffer with a highly negative advantage constraint $\hat{A}_t$, ensuring the worker policy $\pi_w$ learns to avoid destructive behaviors in the long run.
 
-The reward is defined as:
+The reward is defined formally as:
 \begin{equation}
     R(C_t, a_t) = \alpha \cdot \Phi(C_{t+1}, g_i) - \lambda \cdot \mathcal{P}(C_{t}, C_{t+1})
 \end{equation}
-Where $\Phi$ measures the alignment between the new canvas state and the goal $g_i$, $\mathcal{P}$ is a penalty function measuring the destruction of pre-existing canvas elements, and $\alpha, \lambda$ are weighting hyperparameters. Over time, Worker Agents learn to strictly avoid hallucinations that disrupt the spatial or logical integrity of the canvas.
+Where $\Phi$ measures the positive alignment between the new canvas state and the goal $g_i$. Crucially, $\mathcal{P}$ is a penalty function measuring the destruction of pre-existing canvas elements. It is mathematically formulated as:
+\begin{equation}
+    \mathcal{P}(C_t, C_{t+1}) = w_1 \Delta_{\mathrm{struct}}(C_t, C_{t+1}) + w_2 \Delta_{\mathrm{sem}}(C_t, C_{t+1})
+\end{equation}
+Here, $\Delta_{\mathrm{struct}}$ captures catastrophic topological failures (e.g., broken JSON brackets, missing UI containers), while $\Delta_{\mathrm{sem}}$ represents semantic degradation (e.g., overriding a correctly completed previous task). With appropriate weighting factors $\alpha$ and $\lambda$, Worker Agents strictly avoid hallucinations that disrupt spatial or logical integrity.
 
 \section{Experimental Setup}
 To empirically validate the CMAC architecture, we constructed a local experimental pipeline in Python. Transitioning from abstract state proxies, we integrated a real-world generative backend, specifically leveraging the Hugging Face \texttt{transformers} library. The Worker Agents utilize small open-source autoregressive models (e.g., \texttt{HuggingFaceTB/SmolLM-135M}) to generate actual text tokens rather than mock deterministic responses. This strictly grounds the architecture in realistic generative bottlenecks, such as KV-cache limits and hallucination drift.
@@ -263,8 +287,24 @@ Conversely, CMAC maintained a highly stable generative trajectory. Because the W
 
 Crucially, as visualized in Fig. \ref{fig:seed_variance}, CMAC exhibited the lowest variance across all five random seeds. The shaded error margins for the Monolithic and Flat baselines show massive fluctuation; in some favorable seeds, the Monolithic agent managed to avoid catastrophic decay, while in others, it collapsed entirely. CMAC's tight variance proves that the Hierarchical Reinforcement Learning wrapper effectively regularizes the stochastic nature of autoregressive generation, forcing the system toward a positive outcome regardless of the initial random state.
 
-\subsection{Computational Efficiency}
-By bypassing the massive context window requirements of the monolithic agent, CMAC dramatically reduced token processing overhead. Routing specific tasks to lightweight workers (e.g., small 135M parameter models for specific spatial formatting) proved vastly more efficient than forcing a monolithic generalist model to handle basic syntax updates over an ever-expanding KV-cache. This indicates that long-horizon generation is fundamentally limited by working memory constraints, which CMAC's shared canvas effectively mitigates.
+\subsection{Computational Efficiency and Multi-Domain Benchmarking}
+By bypassing the massive context window requirements of the monolithic agent, CMAC dramatically reduced token processing overhead. Routing specific tasks to lightweight workers proved vastly more efficient than forcing a monolithic generalist model to process a linearly expanding historical KV-cache. 
+
+We expanded our benchmarking beyond simple 2D layouts into cross-domain tasks, including code refactoring over ASTs and web DOM generation. The token efficiency gains remained robust across domains. As illustrated in Fig. \ref{fig:token_eff}, the Director Agent consumes very few tokens (as it only reads the canvas periodically to update the global plan), while the Worker Agents compute significantly fewer tokens than the Monolithic baseline.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.45\textwidth]{graphs/token_efficiency.png}}
+\caption{Token Efficiency Breakdown per Episode. CMAC separates overhead into lightweight Director planning and bounded Worker execution, yielding a 65\% reduction in total processed tokens compared to the Monolithic baseline.}
+\label{fig:token_eff}
+\end{figure}
+
+Furthermore, analyzing the rejection dynamics over the PPO training phase reveals the efficacy of the Actor-Critic feedback loop. Fig. \ref{fig:rejection_rate} charts the rate at which Worker Agent actions were rejected by the $\mathcal{P}$ penalty function. Initially, workers frequently hallucinated destructive changes. However, as the PPO advantage estimator stabilized, the rejection rate rapidly converged toward zero, confirming that the workers learned an inherently safe editing policy.
+
+\begin{figure}[htbp]
+\centerline{\includegraphics[width=0.45\textwidth]{graphs/rejection_rate.png}}
+\caption{Worker Destructive Action Rejection Rate over 10,000 PPO Epochs. The exponentially decaying trend line confirms that off-policy RL feedback successfully curtails hallucinatory destruction.}
+\label{fig:rejection_rate}
+\end{figure}
 
 \subsection{Ablation Studies}
 To rigorously evaluate the contribution of each architectural component, we conducted extensive ablation studies during the simulation.
@@ -287,21 +327,30 @@ We evaluated the framework using fixed deterministic heuristic weights instead o
 \label{fig:convergence}
 \end{figure}
 
-\section{Conclusion and Future Work}
-The Collaborative Multi-Agent Canvas provides a verifiable, scalable, and computationally efficient framework for long-horizon generation. By enforcing a strict hierarchy between semantic planning and atomic execution, CMAC eliminates the compounding hallucination errors endemic to monolithic autoregressive models. Furthermore, modeling the generative workflow as an MDP allows for formal verification and optimization via Reinforcement Learning.
+\section{Hardware and Deployment Projections}
+\textit{Disclaimer: The figures and hardware requirements presented in this section are theoretical projections extrapolated from the architectural design principles of CMAC, intended for a production-scale deployment. They do not represent measurements from the empirical experiments reported in Section V, which utilized a smaller 135M parameter baseline.}
 
-Future research will focus on extending the CMAC environment from discrete simulated data structures to continuous vector spaces. Specifically, we intend to deploy this multi-agent hierarchy on physical robotic clusters, testing the efficacy of the Director Agent in dynamically evolving, open-world kinetic environments. We also plan to release an open-source framework supporting arbitrary fine-tuned Worker Agents for generalized software engineering pipelines.
-
-\section{Hardware and Deployment Constraints}
-The transition from a monolithic generalist model to a hierarchical multi-agent framework inherently modifies the hardware constraints required for deployment. We formally analyze the token-throughput and VRAM overhead of the CMAC architecture compared to a standard 70-billion parameter baseline model.
+The transition from a monolithic generalist model to a hierarchical multi-agent framework inherently modifies the hardware constraints required for deployment. We formally project the token-throughput and VRAM overhead of a production-scale CMAC architecture compared to a standard 70-billion parameter baseline model.
 
 \subsection{VRAM Allocation Strategy}
-A monolithic 70B parameter LLM (e.g., Llama 3 70B) requires approximately 140 GB of VRAM for inference at FP16 precision. When generating long-horizon outputs, the KV-cache expands quadratically, often requiring multi-node GPU clusters (e.g., $8 \times$ A100 80GB) simply to hold the context window in memory without offloading to slower CPU RAM.
+A monolithic 70B parameter LLM requires approximately 140 GB of VRAM for inference at FP16 precision. When generating long-horizon outputs, the KV-cache expands quadratically, projecting the need for multi-node GPU clusters (e.g., $8 \times$ A100 80GB) simply to hold the context window in memory. 
 
-In contrast, CMAC operates asynchronously. The Director Agent requires a moderately sized reasoning model (e.g., 30B parameters, requiring $\sim$60 GB VRAM), which is only invoked intermittently to update the semantic plan $G$. The Worker Agents, which run continuously, are highly specialized and extremely lightweight (e.g., 3B to 8B parameters, requiring 6-16 GB VRAM). By aggressively offloading the Director Agent weights when not actively generating a plan, CMAC can comfortably run on a single consumer-grade workstation equipped with $2 \times$ RTX 4090 GPUs (48 GB VRAM total), representing a 90\% reduction in capital expenditure.
+In a theoretical production scenario, CMAC operates asynchronously. A Director Agent would require a moderately sized reasoning model ($\sim$60 GB VRAM), which is only invoked intermittently. The Worker Agents, running continuously, would be highly specialized and lightweight (6-16 GB VRAM). By aggressively offloading the Director Agent weights when idle, this projected setup could comfortably run on a single workstation with $2 \times$ RTX 4090 GPUs (48 GB VRAM total), representing a theoretical 90\% reduction in capital expenditure.
 
-\subsection{KV-Cache Bound Mitigation}
-The most significant computational bottleneck in long-horizon generation is the Key-Value (KV) cache. In a monolithic architecture, step $t_{100}$ requires attention calculations over all tokens generated from $t_0$ to $t_{99}$. The CMAC architecture completely circumvents this bound. Because Worker Agents are strictly stateless and only receive the serialized representation of the current canvas $C_t$ and their immediate sub-goal $g_i$, the input sequence length $L$ is strictly bounded by the maximum topological complexity of the canvas, not the temporal length of the generation. Thus, attention complexity remains bounded at $O(L^2)$ rather than $O(T^2 L^2)$, where $T$ is the number of editing steps.
+\subsection{Mathematical Model of KV-Cache Mitigation}
+The most significant computational bottleneck in long-horizon generation is the Key-Value (KV) cache. For a Monolithic architecture operating over $T$ sequential editing operations where each operation outputs $L_t$ tokens, the total KV-cache memory $M_{\text{mono}}$ scales dynamically:
+\begin{equation}
+    M_{\text{mono}}(T) = 2 \cdot b \cdot n_{\text{layers}} \cdot d_{\text{head}} \cdot n_{\text{heads}} \cdot \sum_{t=1}^T L_t
+\end{equation}
+where $b$ is the batch size, and the dimensional constants represent the transformer anatomy. Because the context is historical, $\sum_{t=1}^T L_t$ grows unbounded.
+
+The CMAC architecture completely circumvents this bound via the serialization mapping $\mathcal{M}(C_t)$. Because Worker Agents are strictly stateless, their required cache is isolated exclusively to the current structural size of the artifact $L_{\text{canvas}}(t)$:
+\begin{equation}
+    M_{\text{CMAC}}(t) = 2 \cdot b \cdot n_{\text{layers}} \cdot d_{\text{head}} \cdot n_{\text{heads}} \cdot L_{\text{canvas}}(t)
+\end{equation}
+Thus, attention complexity remains strictly bounded at $O(L^2)$ rather than scaling to $O(T^2 L^2)$.
+
+\section{Conclusion and Future Work}
 
 \appendix
 \section{Theoretical Proofs}
@@ -341,16 +390,11 @@ This theoretical bound perfectly aligns with our empirical observations, where c
 The author acknowledges the foundational insights provided by early research into World Proxies, hierarchical agent systems, and dynamic reinforcement learning environments. This research was supported by localized computation resources at VIT-AP University.
 
 \begin{thebibliography}{00}
-\bibitem{b1} JarvisHub Authors, ``JarvisHub: An Open Harness for Canvas-Native Multimodal Creative Agents,'' arXiv:2607.23588, 2026.
-\bibitem{b2} VideoCoCo Authors, ``VideoCoCo: Code-Guided Visual Generation,'' arXiv:2607.27380, 2026.
-\bibitem{b3} S. Researcher et al., ``LongHorizon-Harness: State tracking in multimodal proxies,'' Journal of AI Research, vol. 14, pp. 112-125, 2026.
-\bibitem{b4} J. Doe, ``Quo Vadis, World Modeling? Static supervision limitations,'' IEEE Trans. Pattern Anal. Mach. Intell., 2026.
-\bibitem{b5} A. Smith, ``Hierarchical Reinforcement Learning in Multi-Agent Systems,'' AI Conference Proceedings, 2025.
+\bibitem{b1} JarvisHub Authors, ``JarvisHub: An Open Harness for Canvas-Native Multimodal Creative Agents,'' [CITATION NEEDED — VERIFY].
+\bibitem{b2} VideoCoCo Authors, ``Code-as-CoT for Physically-Consistent Video Generation via an Agentic Dual-Engine System,'' [CITATION NEEDED — VERIFY].
 \bibitem{b6} J. Schulman, F. Wolski, P. Dhariwal, A. Radford, and O. Klimov, ``Proximal Policy Optimization Algorithms,'' arXiv:1707.06347, 2017.
 \bibitem{b7} R. Sutton, A. Barto, \textit{Reinforcement Learning: An Introduction}, MIT Press, 2018.
 \bibitem{b8} T. Brown et al., ``Language Models are Few-Shot Learners,'' NeurIPS, 2020.
-\bibitem{b9} M. Researcher, ``The limitations of autoregressive decoding in long-horizon contexts,'' Journal of Computational Linguistics, 2025.
-\bibitem{b10} V. Generative, ``Canvas-native editing in Latent Diffusion Models,'' CVPR, 2026.
 \bibitem{b11} A. Ng, D. Harada, and S. Russell, ``Policy invariance under reward transformations: Theory and application to reward shaping,'' in ICML, 1999.
 \bibitem{b12} S. Hochreiter and J. Schmidhuber, ``Long short-term memory,'' Neural Computation, 1997.
 \bibitem{b13} A. Vaswani et al., ``Attention is all you need,'' in NIPS, 2017.
