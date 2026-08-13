@@ -70,24 +70,22 @@ Parallel to world models, the concept of a "Canvas-Native" agent has gained imme
 \subsection{Hierarchical Reinforcement Learning in Generative AI}
 Hierarchical Reinforcement Learning (HRL) has been widely adopted in robotics to break down complex tasks (e.g., navigating a maze) into sub-tasks (e.g., taking a step). However, its application in generative LLM workflows is nascent. Recent attempts have utilized HRL for text summarization, but CMAC is the first to apply a two-tier HRL framework directly to a spatial, multi-modal generative canvas.
 
-\begin{table}[htbp]
+\begin{table}[h]
 \caption{Taxonomy of Generative Agent Architectures}
-\begin{center}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{lccccc}
-\toprule
-\textbf{Architecture} & \textbf{Context Complexity} & \textbf{State Verification} & \textbf{Failure Recovery} & \textbf{Hierarchical Control} & \textbf{Off-Policy Feedback} \\
-\midrule
-Monolithic LLMs & $O(T^2)$ & Implicit & Autoregressive Retry & No & No \\
-Agentic Frameworks & $O(T^2)$ & Prompt-based Evaluators & Re-prompting & Partial & No \\
-World Proxies & $O(T^2)$ & Proximal Simulation & State Rollback & No & Yes \\
-Canvas Native & $O(L^2)$ & Spatial Object Modeling & State Rollback & No & No \\
-\textbf{CMAC (Ours)} & \textbf{$O(L^2)$} & \textbf{Deterministic Serialization} & \textbf{Reward-based Rejection} & \textbf{Yes (Director-Worker)} & \textbf{Yes (PPO Critic)} \\
-\bottomrule
-\end{tabular}%
-}
 \label{tab:taxonomy}
-\end{center}
+\centering
+\footnotesize
+\begin{tabular}{@{}llllll@{}}
+\toprule
+\textbf{Architecture} & \textbf{Context} & \textbf{State Verification} & \textbf{Recovery} & \textbf{Hierarchic} & \textbf{Off-Policy} \\
+\midrule
+Monolithic LLMs & $O(T^2)$ & Implicit & Auto Retry & No & No \\
+Agentic Frameworks & $O(T^2)$ & Prompt Evaluators & Re-prompt & Partial & No \\
+World Proxies & $O(T^2)$ & Proximal Simulation & Rollback & No & Yes \\
+Canvas Native & $O(L^2)$ & Spatial Modeling & Rollback & No & No \\
+\textbf{CMAC (Ours)} & \textbf{$O(L^2)$} & \textbf{Serialization} & \textbf{RL Rejection} & \textbf{Yes} & \textbf{Yes} \\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \subsection{Model-Based Reinforcement Learning (MBRL) and Planning}
