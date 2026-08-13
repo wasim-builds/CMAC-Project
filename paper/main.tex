@@ -70,9 +70,10 @@ Parallel to world models, the concept of a "Canvas-Native" agent has gained imme
 \subsection{Hierarchical Reinforcement Learning in Generative AI}
 Hierarchical Reinforcement Learning (HRL) has been widely adopted in robotics to break down complex tasks (e.g., navigating a maze) into sub-tasks (e.g., taking a step). However, its application in generative LLM workflows is nascent. Recent attempts have utilized HRL for text summarization, but CMAC is the first to apply a two-tier HRL framework directly to a spatial, multi-modal generative canvas.
 
-\begin{table*}[htbp]
+\begin{table}[htbp]
 \caption{Taxonomy of Generative Agent Architectures}
 \begin{center}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{lccccc}
 \toprule
 \textbf{Architecture} & \textbf{Context Complexity} & \textbf{State Verification} & \textbf{Failure Recovery} & \textbf{Hierarchical Control} & \textbf{Off-Policy Feedback} \\
@@ -83,10 +84,11 @@ World Proxies & $O(T^2)$ & Proximal Simulation & State Rollback & No & Yes \\
 Canvas Native & $O(L^2)$ & Spatial Object Modeling & State Rollback & No & No \\
 \textbf{CMAC (Ours)} & \textbf{$O(L^2)$} & \textbf{Deterministic Serialization} & \textbf{Reward-based Rejection} & \textbf{Yes (Director-Worker)} & \textbf{Yes (PPO Critic)} \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \label{tab:taxonomy}
 \end{center}
-\end{table*}
+\end{table}
 
 \subsection{Model-Based Reinforcement Learning (MBRL) and Planning}
 Within classical Reinforcement Learning, MBRL allows agents to learn a forward dynamics model of the environment, enabling them to simulate trajectories and plan before taking physical actions. Prominent algorithms like MuZero and Dreamer demonstrate that learning a latent dynamics model drastically improves sample efficiency compared to model-free approaches like PPO or SAC. However, applying MBRL to text or image generation is notoriously difficult due to the massive, unstructured nature of language and pixel spaces. 
