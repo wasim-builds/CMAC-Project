@@ -3,7 +3,7 @@
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-green)
 
-This repository contains the prototype simulation and the 6-page IEEE format research paper for **"Collaborative Multi-Agent Canvas (CMAC): Hierarchical Reinforcement Learning for Long-Horizon Generative Workflows"**.
+This repository contains the prototype simulation and the comprehensive Springer Nature journal research paper for **"Collaborative Multi-Agent Canvas (CMAC): Hierarchical Reinforcement Learning for Long-Horizon Generative Workflows"**.
 
 ## 📖 The Research Gap
 Current multimodal generative agents (like those observed in standard autoregressive LLMs) fail catastrophically during long-horizon generation because monolithic architectures suffer from context decay. CMAC solves this by implementing a hierarchical Reinforcement Learning (RL) approach on a shared memory canvas, bypassing the massive context-window bottlenecks.
@@ -51,7 +51,7 @@ python3 plot_results.py
 ---
 
 ## 📄 Research Paper
-The complete 6-page LaTeX source code is formatted to strict IEEE Conference standards. It contains the mathematical proofs (MDP & PPO constraints) and ablation studies.
+The complete LaTeX source code is formatted to Springer Nature journal standards (`sn-jnl.cls`). It contains the mathematical proofs (SMDP monotonic improvement, convergence bounds, and sub-linear token complexity derivations) and ablation studies.
 
 You can find the source code in:
 ```
@@ -60,6 +60,11 @@ paper/main.tex
 *(Note: To compile the paper into a PDF, we recommend uploading the `paper/` directory to Overleaf or using a local `pdflatex` distribution).*
 
 ---
-**Author:** Mohammed Wasim Khan  
-**Institution:** VIT-AP University  
-**Contact:** wasim143mr@gmail.com  
+**Authors:**
+- Koduru Hajarathaiah (School of Computer Science and Engineering, VIT-AP University)
+- Rolla Subrahmanyam (School of Computer Science and Engineering, VIT Chennai)
+- Mohammed Wasim Khan (School of Computer Science and Engineering, VIT-AP University)
+- Venkata Bhikshapathi Chenam* (School of Computer Science and Engineering, VIT-AP University)
+
+**Corresponding Author:** venkatab.chenam@vitap.ac.in  
+**Contact:** wasim.21mis7125@vitapstudent.ac.in  
